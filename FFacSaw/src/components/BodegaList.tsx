@@ -1,11 +1,15 @@
-import React, { useEffect, useState } from 'react'
+import { useEffect, useState } from 'react'
 import { bodegaService } from '../services/bodegaService'
 import type { BodegaDTO } from '../services/bodegaService'
+import AuditModal from './AuditModal'
+import { getAudits } from '../services/auditService'
 
 export default function BodegaList({ onEdit, onCreate, refreshSignal }: { onEdit: (b: BodegaDTO) => void; onCreate: () => void; refreshSignal: number }) {
   const [items, setItems] = useState<BodegaDTO[]>([])
+  const [auditOpen, setAuditOpen] = useState(false)
+  const [auditData, setAuditData] = useState<import('../services/auditService').AuditEntry[] | null>(null)
 
-  useEffect(() => {
+  useEffect(() =>  { 
     bodegaService.list().then(setItems).catch(() => setItems([]))
   }, [refreshSignal])
 
@@ -19,9 +23,10 @@ export default function BodegaList({ onEdit, onCreate, refreshSignal }: { onEdit
     <div className="inventory">
       <div className="inventory-header">
         <h2>Bodegas</h2>
-        <button onClick={onCreate}>Nueva bodega</button>
+        <button className="btn btn-primary" onClick={onCreate}>Nueva bodega</button>
       </div>
-      <table className="inventory-table">
+      <div className="table-responsive">
+        <table className="inventory-table">
         <thead>
           <tr>
             <th>ID</th>
@@ -39,13 +44,18 @@ export default function BodegaList({ onEdit, onCreate, refreshSignal }: { onEdit
               <td>{b.ubicacion}</td>
               <td>{b.descripcion}</td>
               <td>
-                <button onClick={() => onEdit(b)}>Editar</button>
-                <button onClick={() => handleDelete(b.id)}>Borrar</button>
+                <div className="table-actions">
+                  <button className="btn btn-secondary btn-sm" onClick={() => onEdit(b)}>Editar</button>
+                  <button className="btn btn-danger btn-sm" onClick={() => handleDelete(b.id)}>Borrar</button>
+                  <button className="btn btn-sm" onClick={async () => { const d = await getAudits('bodega', b.id); setAuditData(d); setAuditOpen(true) }} style={{ marginLeft: 8 }}>Ver auditorías</button>
+                </div>
               </td>
             </tr>
           ))}
         </tbody>
-      </table>
+        </table>
+      </div>
+      <AuditModal open={auditOpen} onClose={() => setAuditOpen(false)} data={auditData} title="Auditorías - Bodega" />
     </div>
   )
 }

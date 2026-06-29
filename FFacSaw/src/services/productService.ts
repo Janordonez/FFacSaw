@@ -1,14 +1,29 @@
 export interface Categoria { id?: number; nombre: string }
 
+export interface ProveedorDTO {
+  id?: number
+  nombre?: string
+  nombreComercial?: string
+  razonSocial?: string
+}
+
 export interface Producto {
   id?: number
   nombre: string
   descripcion?: string
+  precio?: number
   categoria?: Categoria
-  stock?: number
+  clasificacion?: string
   precioProveedor?: number
   precioVenta?: number
   impuesto?: boolean
+  proveedor?: ProveedorDTO
+  stockMinimo?: number
+  costoMantenimiento?: number
+  stockSeguridad?: number
+  stock?: number
+  cantVentAnio?: number
+  ventasPorAño?: number
 }
 
 const BASE = 'http://localhost:8081'
@@ -19,16 +34,37 @@ function normalizeNumber(v: any): number | undefined {
   return Number.isNaN(n) ? undefined : n
 }
 
+function normalizeProveedor(rawProveedor: any): ProveedorDTO | undefined {
+  if (!rawProveedor) return undefined
+
+  const nombre = rawProveedor.nombre ?? rawProveedor.nombreComercial ?? rawProveedor.razonSocial ?? rawProveedor.nombreProveedor ?? ''
+
+  return {
+    id: rawProveedor.id,
+    nombre: nombre || undefined,
+    nombreComercial: rawProveedor.nombreComercial,
+    razonSocial: rawProveedor.razonSocial
+  }
+}
+
 function normalizeProducto(raw: any): Producto {
   return {
     id: raw.id,
     nombre: raw.nombre,
     descripcion: raw.descripcion,
+    precio: normalizeNumber(raw.precio),
     categoria: raw.categoria,
-    stock: raw.stock != null ? parseInt(String(raw.stock), 10) : undefined,
+    clasificacion: raw.clasificacion,
     precioProveedor: normalizeNumber(raw.precioProveedor),
     precioVenta: normalizeNumber(raw.precioVenta),
-    impuesto: raw.impuesto === true || raw.impuesto === 'true'
+    impuesto: raw.impuesto === true || raw.impuesto === 'true',
+    proveedor: normalizeProveedor(raw.proveedor),
+    stockMinimo: normalizeNumber(raw.stockMinimo),
+    costoMantenimiento: normalizeNumber(raw.costoMantenimiento),
+    stockSeguridad: normalizeNumber(raw.stockSeguridad),
+    stock: raw.stock != null ? parseInt(String(raw.stock), 10) : undefined,
+    cantVentAnio: raw.cantVentAnio != null ? parseInt(String(raw.cantVentAnio), 10) : undefined,
+    ventasPorAño: normalizeNumber(raw.ventasPorAño)
   }
 }
 
@@ -61,9 +97,9 @@ export const productService = {
     const body = { ...product, id }
     // endpoint indicado: /producto/actualizar
     const res = await fetch(`${BASE}/producto/actualizar`, {
-      method: 'POST',
+      method: 'PUT',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(body)
+      body: JSON.stringify(body)  
     })
     if (!res.ok) throw new Error(`Error update: ${res.status} ${res.statusText}`)
     const data = await res.json()
@@ -71,7 +107,7 @@ export const productService = {
   },
   async remove(id: number): Promise<void> {
     // Intento razonable: DELETE /producto/{id}
-    const res = await fetch(`${BASE}/producto/${id}`, { method: 'DELETE' })
+    const res = await fetch(`${BASE}/producto/borrar/${id}`, { method: 'DELETE' })
     if (!res.ok) throw new Error(`Error delete: ${res.status} ${res.statusText}`)
     return
   }

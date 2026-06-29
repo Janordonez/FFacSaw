@@ -1,9 +1,10 @@
 export interface ExistenciaDTO {
-  productoId: number
-  bodegaId: number
+  productoId?: number
+  bodegaId?: number
+  producto?: { id?: number; nombre?: string } | string
+  existenciaID?: { productoId?: number; bodegaId?: number }
+  bodega?: string
   stock: number
-  producto?: any
-  bodega?: any
 }
 
 const BASE = 'http://localhost:8081'
@@ -29,7 +30,8 @@ export const existenciaService = {
   },
   async create(e: { productoId: number; bodegaId: number; stock: number }): Promise<ExistenciaDTO> {
     const body = { existenciaID: { productoId: e.productoId, bodegaId: e.bodegaId }, stock: e.stock }
-    const res = await fetch(`${BASE}/existencia/crear`, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(body) })
+    const res = await fetch(`${BASE}/existencia/crear`, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(body) })  
+    console.log('Create existencia response:', res)
     if (!res.ok) throw new Error(`Error crear existencia: ${res.status}`)
     return res.json()
   },

@@ -18,7 +18,7 @@ export const categoryService = {
   },
   async update(c: CategoriaDTO): Promise<CategoriaDTO> {
     const res = await fetch(`${BASE}/categoria/actualizar`, {
-      method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(c)
+      method: 'PUT', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(c)
     })
     if (!res.ok) throw new Error(`Error actualizar categoria: ${res.status}`)
     return res.json()

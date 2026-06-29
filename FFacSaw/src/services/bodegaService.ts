@@ -15,7 +15,7 @@ export const bodegaService = {
     return res.json()
   },
   async update(b: BodegaDTO): Promise<BodegaDTO> {
-    const res = await fetch(`${BASE}/bodega/actualizar`, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(b) })
+    const res = await fetch(`${BASE}/bodega/actualizar`, { method: 'PUT', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(b) })
     if (!res.ok) throw new Error(`Error actualizar bodega: ${res.status}`)
     return res.json()
   },

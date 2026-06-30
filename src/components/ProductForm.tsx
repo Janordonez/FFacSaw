@@ -13,7 +13,7 @@ type Props = {
 }
 
 export default function ProductForm({ producto, onCancel, onSaved }: Props) {
-  const [form, setForm] = useState<Producto>({ nombre: '', descripcion: '', impuesto: false })
+  const [form, setForm] = useState<Producto>({ nombre: '', descripcion: '', impuesto: false, estado: 'Activo' })
   const [categorias, setCategorias] = useState<CategoriaDTO[]>([])
   const [proveedores, setProveedores] = useState<ProveedorDTO[]>([])
   const [loading, setLoading] = useState(false)
@@ -26,6 +26,7 @@ export default function ProductForm({ producto, onCancel, onSaved }: Props) {
         nombre: '', 
         descripcion: '', 
         impuesto: false,
+        estado: 'Activo',
         cantVentAnio: undefined,
         ventasPorAño: undefined
       })
@@ -97,17 +98,6 @@ export default function ProductForm({ producto, onCancel, onSaved }: Props) {
 
       <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '16px' }}>
         <div className="form-group">
-          <label>Precio</label>
-          <input 
-            type="number" 
-            step="0.01" 
-            value={form.precio ?? ''} 
-            onChange={e => onChange('precio', parseFloat(e.target.value || '0'))}
-            placeholder="0.00"
-          />
-        </div>
-
-        <div className="form-group">
           <label>Proveedor</label>
           <select value={form.proveedor?.id ?? ''} onChange={e => {
             const id = e.target.value === '' ? undefined : parseInt(e.target.value, 10)
@@ -116,6 +106,14 @@ export default function ProductForm({ producto, onCancel, onSaved }: Props) {
           }}>
             <option value="">-- sin proveedor --</option>
             {proveedores.map(p => <option key={p.id} value={p.id}>{p.nombreComercial}</option>)}
+          </select>
+        </div>
+
+        <div className="form-group">
+          <label>Estado</label>
+          <select value={form.estado ?? 'Activo'} onChange={e => onChange('estado', e.target.value)}>
+            <option value="Activo">Activo</option>
+            <option value="Inactivo">Inactivo</option>
           </select>
         </div>
       </div>

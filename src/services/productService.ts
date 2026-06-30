@@ -11,7 +11,6 @@ export interface Producto {
   id?: number
   nombre: string
   descripcion?: string
-  precio?: number
   categoria?: Categoria
   clasificacion?: string
   precioProveedor?: number
@@ -24,6 +23,7 @@ export interface Producto {
   stock?: number
   cantVentAnio?: number
   ventasPorAño?: number
+  estado?: 'Activo' | 'Inactivo' | string
 }
 
 const API = import.meta.env.VITE_API_URL
@@ -52,7 +52,6 @@ function normalizeProducto(raw: any): Producto {
     id: raw.id,
     nombre: raw.nombre,
     descripcion: raw.descripcion,
-    precio: normalizeNumber(raw.precio),
     categoria: raw.categoria,
     clasificacion: raw.clasificacion,
     precioProveedor: normalizeNumber(raw.precioProveedor),
@@ -64,7 +63,8 @@ function normalizeProducto(raw: any): Producto {
     stockSeguridad: normalizeNumber(raw.stockSeguridad),
     stock: raw.stock != null ? parseInt(String(raw.stock), 10) : undefined,
     cantVentAnio: raw.cantVentAnio != null ? parseInt(String(raw.cantVentAnio), 10) : undefined,
-    ventasPorAño: normalizeNumber(raw.ventasPorAño)
+    ventasPorAño: normalizeNumber(raw.ventasPorAño),
+    estado: raw.estado ?? 'Activo'
   }
 }
 

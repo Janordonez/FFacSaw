@@ -8,6 +8,7 @@ export default function MovimientoList({ refreshSignal, onCreate }: { refreshSig
   const [movimientos, setMovimientos] = useState<MovimientoInventarioDTO[]>([])
   const [bodegas, setBodegas] = useState<BodegaDTO[]>([])
   const [selectedBodegaId, setSelectedBodegaId] = useState('all')
+  const [searchTerm, setSearchTerm] = useState('')
   const [selectedMovimiento, setSelectedMovimiento] = useState<MovimientoInventarioDTO | null>(null)
   const [isDetailOpen, setIsDetailOpen] = useState(false)
 
@@ -44,6 +45,20 @@ export default function MovimientoList({ refreshSignal, onCreate }: { refreshSig
     }
   }
 
+  const filteredMovimientos = movimientos.filter((m) => {
+    const query = searchTerm.trim().toLowerCase()
+    if (!query) return true
+    return [
+      m.tipo,
+      m.nombreBodega,
+      m.total?.toString(),
+      m.cantDetalles?.toString(),
+      m.fecha,
+    ]
+      .filter(Boolean)
+      .some((value) => String(value).toLowerCase().includes(query))
+  })
+
   return (
     <div className="inventory">
       <div className="inventory-header">
@@ -61,6 +76,14 @@ export default function MovimientoList({ refreshSignal, onCreate }: { refreshSig
               ))}
             </select>
           </label>
+          <div className="inventory-search">
+            <input
+              type="text"
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
+              placeholder="Buscar movimientos..."
+            />
+          </div>
           {onCreate && (
             <button className="btn btn-primary" onClick={onCreate}>Nuevo movimiento</button>
           )}
@@ -81,12 +104,12 @@ export default function MovimientoList({ refreshSignal, onCreate }: { refreshSig
             </tr>
           </thead>
           <tbody>
-            {movimientos.length === 0 ? (
+            {filteredMovimientos.length === 0 ? (
               <tr>
                 <td colSpan={7} className="text-muted">No hay movimientos para la bodega seleccionada.</td>
               </tr>
             ) : (
-              movimientos.map(m => (
+              filteredMovimientos.map(m => (
                 <tr key={m.id}>
                   <td>{m.id}</td>
                   <td>{m.tipo}</td>

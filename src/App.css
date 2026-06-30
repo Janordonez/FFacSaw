@@ -412,6 +412,35 @@ p, label, input, select, button {
   align-items: center;
   gap: 12px;
   flex-wrap: wrap;
+  margin-bottom: 18px;
+}
+
+.inventory-search {
+  min-width: 280px;
+  width: 100%;
+  max-width: 420px;
+}
+
+.inventory-search input {
+  width: 100%;
+  padding: 12px 16px;
+  border: 1px solid var(--border-color);
+  border-radius: 12px;
+  background: var(--bg-primary);
+  color: var(--text-primary);
+  font-size: 14px;
+  box-shadow: var(--shadow-sm);
+  transition: border-color 0.2s ease, box-shadow 0.2s ease;
+}
+
+.inventory-search input:focus {
+  outline: none;
+  border-color: var(--primary-color);
+  box-shadow: 0 0 0 4px rgba(30, 77, 140, 0.12);
+}
+
+.inventory-search input::placeholder {
+  color: #94a3b8;
 }
 
 .inventory-filter {

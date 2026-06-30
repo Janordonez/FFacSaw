@@ -6,6 +6,7 @@ import { getAudits } from '../services/auditService'
 
 export default function ProductList({ onEdit, onCreate, refreshSignal }: { onEdit: (p: Producto) => void; onCreate: () => void; refreshSignal: number }) {
   const [productos, setProductos] = useState<Producto[]>([])
+  const [searchTerm, setSearchTerm] = useState('')
   const [auditOpen, setAuditOpen] = useState(false)
   const [auditData, setAuditData] = useState<import('../services/auditService').AuditEntry[] | null>(null)
   const [openMenuId, setOpenMenuId] = useState<number | null>(null)
@@ -13,6 +14,21 @@ export default function ProductList({ onEdit, onCreate, refreshSignal }: { onEdi
   useEffect(() => {
     productService.list().then(setProductos)
   }, [refreshSignal])
+
+  const filteredProductos = productos.filter((p) => {
+    const query = searchTerm.trim().toLowerCase()
+    if (!query) return true
+    return [
+      p.nombre,
+      p.categoria?.nombre,
+      p.clasificacion,
+      p.proveedor?.nombre,
+      p.proveedor?.nombreComercial,
+      p.proveedor?.razonSocial,
+    ]
+      .filter(Boolean)
+      .some((value) => String(value).toLowerCase().includes(query))
+  })
 
   const handleDelete = (id?: number) => {
     if (!id) return
@@ -54,6 +70,17 @@ export default function ProductList({ onEdit, onCreate, refreshSignal }: { onEdi
         </div>
       </div>
 
+      <div className="inventory-controls">
+        <div className="inventory-search">
+          <input
+            type="text"
+            value={searchTerm}
+            onChange={(e) => setSearchTerm(e.target.value)}
+            placeholder="Buscar productos..."
+          />
+        </div>
+      </div>
+
       <div className="table-responsive">
         <table className="inventory-table">
           <thead>
@@ -74,7 +101,7 @@ export default function ProductList({ onEdit, onCreate, refreshSignal }: { onEdi
             </tr>
           </thead>
           <tbody>
-            {productos.map(p => (
+            {filteredProductos.map(p => (
               <tr key={p.id}>
                 <td>{p.id}</td>
                 <td>{p.nombre}</td>

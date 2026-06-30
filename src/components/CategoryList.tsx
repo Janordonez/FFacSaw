@@ -6,12 +6,21 @@ import { getAudits } from '../services/auditService'
 
 export default function CategoryList({ onEdit, onCreate, refreshSignal }: { onEdit: (c: CategoriaDTO) => void; onCreate: () => void; refreshSignal: number }) {
   const [cats, setCats] = useState<CategoriaDTO[]>([])
+  const [searchTerm, setSearchTerm] = useState('')
   const [auditOpen, setAuditOpen] = useState(false)
   const [auditData, setAuditData] = useState<import('../services/auditService').AuditEntry[] | null>(null)
 
   useEffect(() => {
     categoryService.list().then(setCats).catch(() => setCats([]))
   }, [refreshSignal])
+
+  const filteredCats = cats.filter((c) => {
+    const query = searchTerm.trim().toLowerCase()
+    if (!query) return true
+    return [c.nombre, c.descripcion]
+      .filter(Boolean)
+      .some((value) => String(value).toLowerCase().includes(query))
+  })
 
   const handleDelete = (id?: number) => {
     if (!id) return
@@ -25,6 +34,16 @@ export default function CategoryList({ onEdit, onCreate, refreshSignal }: { onEd
         <h2>Categorías</h2>
         <button className="btn btn-primary" onClick={onCreate}>Nueva categoría</button>
       </div>
+      <div className="inventory-controls">
+        <div className="inventory-search">
+          <input
+            type="text"
+            value={searchTerm}
+            onChange={(e) => setSearchTerm(e.target.value)}
+            placeholder="Buscar categorías..."
+          />
+        </div>
+      </div>
       <div className="table-responsive">
         <table className="inventory-table">
         <thead>
@@ -36,7 +55,7 @@ export default function CategoryList({ onEdit, onCreate, refreshSignal }: { onEd
           </tr>
         </thead>
         <tbody>
-          {cats.map(c => (
+          {filteredCats.map(c => (
             <tr key={c.id}>
               <td>{c.id}</td>
               <td>{c.nombre}</td>

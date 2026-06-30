@@ -35,14 +35,22 @@ export default function Dashboard() {
   const [isStockCriticalOpen, setIsStockCriticalOpen] = useState(true);
   const [isParetoExpanded, setIsParetoExpanded] = useState(false);
 
-  const formatInventoryAxis = (value: number) => {
-    if (Math.abs(value) >= 1000000) {
-      return `$${(value / 1000000).toFixed(1)}M`;
+  const formatInventoryAxis = (value: number | null | undefined) => {
+    const numericValue = Number(value ?? 0);
+    if (!Number.isFinite(numericValue)) return "$0";
+    if (Math.abs(numericValue) >= 1000000) {
+      return `$${(numericValue / 1000000).toFixed(1)}M`;
     }
-    if (Math.abs(value) >= 1000) {
-      return `$${Math.round(value / 1000)}K`;
+    if (Math.abs(numericValue) >= 1000) {
+      return `$${Math.round(numericValue / 1000)}K`;
     }
-    return `$${Number(value).toLocaleString()}`;
+    return `$${numericValue.toLocaleString()}`;
+  };
+
+  const formatCurrency = (amount: number | null | undefined) => {
+    const numericAmount = Number(amount ?? 0);
+    if (!Number.isFinite(numericAmount)) return "$0";
+    return `$${numericAmount.toLocaleString()}`;
   };
 
   const getClassBoundaryInfo = () => {
@@ -78,7 +86,7 @@ export default function Dashboard() {
       <div className="kpi-grid">
         <div className="kpi-card primary">
           <h3>Valor Total</h3>
-          <p>${data.valorTotal.toLocaleString()}</p>
+          <p>{formatCurrency(data.valorTotal)}</p>
         </div>
 
         <div className="kpi-card">

@@ -18,7 +18,7 @@ export default function Sidebar({ activeModule, onModuleChange, modules }: Sideb
         <div className="app-logo">
           <i className="fas fa-box"></i>
         </div>
-        <h1 className="app-title">FFacSaw</h1>
+        <h1 className="app-title">Inventario</h1>
       </div>
       
       <nav className="sidebar-nav">

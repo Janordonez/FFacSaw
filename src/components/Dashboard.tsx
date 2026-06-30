@@ -71,7 +71,7 @@ export default function Dashboard() {
   const inventoryDomainMax = Math.max(Math.ceil((maxInventario * 1.5) / 100000) * 100000, 500000);
   const maxClasificacionCantidad = Math.max(
     0,
-    ...(data?.clasificacionYPorcentaje?.map((item) => item.cantidad ?? 0) ?? []),
+    ...(data?.clasificacionYPorcentaje?.map((item) => Number(item.cantidad) || 0) ?? []),
   );
   const clasificacionDomainMax = Math.max(Math.ceil(maxClasificacionCantidad / 5) * 5, 20);
 
@@ -136,7 +136,7 @@ export default function Dashboard() {
                 dataKey="nombre"
                 tickFormatter={(v) => v ?? "Sin clasificación"}
               />
-              <YAxis domain={[0, clasificacionDomainMax]} allowDecimals={false} />
+              <YAxis domain={[0, Math.max(clasificacionDomainMax, maxClasificacionCantidad)]} allowDecimals={false} />
               <Tooltip />
               <Bar dataKey="cantidad" fill="#1E4D8C" radius={[6,6,0,0]} />
             </BarChart>

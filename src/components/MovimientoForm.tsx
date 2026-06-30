@@ -65,7 +65,6 @@ export default function MovimientoForm({ onCancel, onSaved }: { onCancel: () => 
   }
 
   function addDetalle() { setDetalles(prev => [...prev, { cantidad: 1 }]) }
-  function removeDetalle(i: number) { setDetalles(prev => prev.filter((_, idx) => idx !== i)) }
 
   async function submit(e: React.FormEvent) {
     e.preventDefault()

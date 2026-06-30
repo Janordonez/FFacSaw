@@ -69,9 +69,14 @@ export default function Dashboard() {
 
   const paretoChartWidth = Math.max((data?.productosInfoDTO?.length ?? 0) * 110, 1100);
   const inventoryDomainMax = Math.max(Math.ceil((maxInventario * 1.5) / 100000) * 100000, 500000);
+  const clasificacionData = data?.clasificacionYPorcentaje?.map((item) => ({
+    ...item,
+    cantidad: Number(item.cantidad) || 0,
+  })) ?? [];
+
   const maxClasificacionCantidad = Math.max(
     0,
-    ...(data?.clasificacionYPorcentaje?.map((item) => Number(item.cantidad) || 0) ?? []),
+    ...(clasificacionData.map((item) => item.cantidad) ?? []),
   );
   const clasificacionDomainMax = Math.max(Math.ceil(maxClasificacionCantidad / 5) * 5, 20);
 
@@ -130,8 +135,8 @@ export default function Dashboard() {
 
         <div className="chart-card">
           <h3>Clasificación</h3>
-          <ResponsiveContainer width="100%" height={300}>
-            <BarChart data={data.clasificacionYPorcentaje}>
+          <ResponsiveContainer width="100%" height={300} minWidth={0} minHeight={0}>
+            <BarChart data={clasificacionData}>
               <XAxis
                 dataKey="nombre"
                 tickFormatter={(v) => v ?? "Sin clasificación"}

@@ -69,16 +69,15 @@ export default function Dashboard() {
 
   const paretoChartWidth = Math.max((data?.productosInfoDTO?.length ?? 0) * 110, 1100);
   const inventoryDomainMax = Math.max(Math.ceil((maxInventario * 1.5) / 100000) * 100000, 500000);
-  const clasificacionData = data?.clasificacionYPorcentaje?.map((item) => ({
-    ...item,
-    cantidad: Number(item.cantidad) || 0,
-  })) ?? [];
+  const clasificacionData = (data?.clasificacionYPorcentaje ?? [])
+    .map((item) => ({ ...item, cantidad: Number(item.cantidad) || 0 }))
+    .sort((a, b) => (a.nombre ?? '').localeCompare(b.nombre ?? ''));
 
   const maxClasificacionCantidad = Math.max(
     0,
     ...(clasificacionData.map((item) => item.cantidad) ?? []),
   );
-  const clasificacionDomainMax = Math.max(Math.ceil(maxClasificacionCantidad / 5) * 5, 20);
+  const clasificacionDomainMax = Math.max(Math.ceil(maxClasificacionCantidad * 1.1), 20);
 
   useEffect(() => {
     dashboardService.get().then((res) => {
@@ -136,14 +135,20 @@ export default function Dashboard() {
         <div className="chart-card">
           <h3>Clasificación</h3>
           <ResponsiveContainer width="100%" height={300} minWidth={0} minHeight={0}>
-            <BarChart data={clasificacionData}>
+            <BarChart
+              data={clasificacionData}
+              margin={{ top: 20, right: 20, left: 0, bottom: 5 }}
+              barCategoryGap="30%"
+            >
+              <CartesianGrid strokeDasharray="3 3" opacity={0.15} />
               <XAxis
                 dataKey="nombre"
                 tickFormatter={(v) => v ?? "Sin clasificación"}
+                tick={{ fontSize: 12 }}
               />
               <YAxis domain={[0, Math.max(clasificacionDomainMax, maxClasificacionCantidad)]} allowDecimals={false} />
-              <Tooltip />
-              <Bar dataKey="cantidad" fill="#1E4D8C" radius={[6,6,0,0]} />
+              <Tooltip formatter={(value) => [Number(value), 'Cantidad']} />
+              <Bar dataKey="cantidad" fill="#1E4D8C" radius={[6, 6, 0, 0]} barSize={60} label={{ position: 'top' }} />
             </BarChart>
           </ResponsiveContainer>
         </div>

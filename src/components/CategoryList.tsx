@@ -22,11 +22,6 @@ export default function CategoryList({ onEdit, onCreate, refreshSignal }: { onEd
       .some((value) => String(value).toLowerCase().includes(query))
   })
 
-  const handleDelete = (id?: number) => {
-    if (!id) return
-    if (!confirm('¿Eliminar esta categoría?')) return
-    categoryService.remove(id).then(() => categoryService.list().then(setCats)).catch(err => alert(err.message))
-  }
 
   return (
     <div className="inventory">
@@ -63,7 +58,6 @@ export default function CategoryList({ onEdit, onCreate, refreshSignal }: { onEd
               <td>
                 <div className="table-actions">
                   <button className="btn btn-secondary btn-sm" onClick={() => onEdit(c)}>Editar</button>
-                  <button className="btn btn-danger btn-sm" onClick={() => handleDelete(c.id)}>Borrar</button>
                   <button className="btn btn-sm" onClick={async () => { const d = await getAudits('categoria', c.id); setAuditData(d); setAuditOpen(true) }} style={{ marginLeft: 8 }}>Ver auditorías</button>
                 </div>
               </td>

@@ -31,12 +31,6 @@ export default function ProductList({ onEdit, onCreate, refreshSignal }: { onEdi
       .some((value) => String(value).toLowerCase().includes(query))
   })
 
-  const handleDelete = (id?: number) => {
-    if (!id) return
-    if (!confirm('¿Eliminar este producto?')) return
-    productService.remove(id).then(() => productService.list().then(setProductos))
-  }
-
   const totalProducts = productos.length
   const productsWithTax = productos.filter(p => p.impuesto).length
   const averageSalePrice = totalProducts > 0 ? productos.reduce((sum, p) => sum + Number(p.precioVenta ?? 0), 0) / totalProducts : 0
@@ -121,7 +115,6 @@ export default function ProductList({ onEdit, onCreate, refreshSignal }: { onEdi
                     <button className="action-menu-button" onClick={() => setOpenMenuId(prev => prev === (p.id ?? null) ? null : (p.id ?? null))}>⋮</button>
                     <div className={`action-menu-list${openMenuId === p.id ? ' visible' : ''}`}>
                       <button className="action-menu-item" onClick={() => { setOpenMenuId(null); onEdit(p) }}>Editar</button>
-                      <button className="action-menu-item" onClick={() => { setOpenMenuId(null); handleDelete(p.id) }}>Borrar</button>
                       <button className="action-menu-item" onClick={async () => {
                         setOpenMenuId(null)
                         try {

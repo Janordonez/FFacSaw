@@ -147,15 +147,12 @@ export default function MovimientoForm({ onCancel, onSaved }: { onCancel: () => 
 
         <div style={{ display: 'grid', gap: 8 }}>
           {detalles.map((d, i) => (
-            <div key={i} style={{ display: 'grid', gridTemplateColumns: '1fr 120px 80px', gap: 8 }}>
+            <div key={i} style={{ display: 'grid', gridTemplateColumns: '1fr 120px', gap: 8 }}>
               <select value={d.productoId ?? ''} onChange={e => updateDetalle(i, { productoId: e.target.value ? parseInt(e.target.value, 10) : undefined })}>
                 <option value="">-- producto --</option>
                 {productosDisponibles.map(p => <option key={p.id} value={p.id}>{p.nombre}</option>)}
               </select>
               <input type="number" min={1} value={d.cantidad} onChange={e => updateDetalle(i, { cantidad: parseInt(e.target.value || '1', 10) })} />
-              <div style={{ display: 'flex', gap: 8 }}>
-                <button type="button" className="btn btn-secondary btn-sm" onClick={() => removeDetalle(i)}>Eliminar</button>
-              </div>
             </div>
           ))}
           <button type="button" className="btn" onClick={addDetalle} disabled={!selectedBodegaId || productosDisponibles.length === 0}>Agregar detalle</button>

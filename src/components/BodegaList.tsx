@@ -22,12 +22,6 @@ export default function BodegaList({ onEdit, onCreate, refreshSignal }: { onEdit
       .some((value) => String(value).toLowerCase().includes(query))
   })
 
-  const handleDelete = (id?: number) => {
-    if (!id) return
-    if (!confirm('¿Eliminar esta bodega?')) return
-    bodegaService.remove(id).then(() => bodegaService.list().then(setItems)).catch(err => alert(err.message))
-  }
-
   return (
     <div className="inventory">
       <div className="inventory-header">
@@ -65,7 +59,6 @@ export default function BodegaList({ onEdit, onCreate, refreshSignal }: { onEdit
               <td>
                 <div className="table-actions">
                   <button className="btn btn-secondary btn-sm" onClick={() => onEdit(b)}>Editar</button>
-                  <button className="btn btn-danger btn-sm" onClick={() => handleDelete(b.id)}>Borrar</button>
                   <button className="btn btn-sm" onClick={async () => { const d = await getAudits('bodega', b.id); setAuditData(d); setAuditOpen(true) }} style={{ marginLeft: 8 }}>Ver auditorías</button>
                 </div>
               </td>

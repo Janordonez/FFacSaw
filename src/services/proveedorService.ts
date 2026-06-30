@@ -11,18 +11,18 @@ export interface ProveedorDTO {
   costoPorPedido?: number | string
 }
 
-const BASE = 'http://localhost:8081'
+const API = import.meta.env.VITE_API_URL
 
 export const proveedorService = {
   async list(): Promise<ProveedorDTO[]> {
-    const res = await fetch(`${BASE}/proveedor/all`, { method: 'GET' })
+    const res = await fetch(`${API}/proveedor/all`, { method: 'GET' })
     if (!res.ok) throw new Error(`Error list proveedores: ${res.status} ${res.statusText}`)
     const data = await res.json()
     return Array.isArray(data) ? data : []
   },
 
   async create(proveedor: ProveedorDTO): Promise<ProveedorDTO> {
-    const res = await fetch(`${BASE}/proveedor/crear`, {
+    const res = await fetch(`${API}/proveedor/crear`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(proveedor)
@@ -32,7 +32,7 @@ export const proveedorService = {
   },
 
   async update(proveedor: ProveedorDTO): Promise<ProveedorDTO> {
-    const res = await fetch(`${BASE}/proveedor/actualizar`, {
+    const res = await fetch(`${API}/proveedor/actualizar`, {
       method: 'PUT',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(proveedor)

@@ -26,7 +26,7 @@ export interface Producto {
   ventasPorAño?: number
 }
 
-const BASE = 'http://localhost:8081'
+const API = import.meta.env.VITE_API_URL
 
 function normalizeNumber(v: any): number | undefined {
   if (v === null || v === undefined || v === '') return undefined
@@ -70,21 +70,21 @@ function normalizeProducto(raw: any): Producto {
 
 export const productService = {
   async list(): Promise<Producto[]> {
-    const res = await fetch(`${BASE}/producto/all`, { method: 'GET' })
+    const res = await fetch(`${API}/producto/all`, { method: 'GET' })
     if (!res.ok) throw new Error(`Error list: ${res.status} ${res.statusText}`)
     const data = await res.json()
     if (!Array.isArray(data)) return []
     return data.map(normalizeProducto)
   },
   async get(id: number): Promise<Producto | undefined> {
-    const res = await fetch(`${BASE}/producto/${id}`, { method: 'GET' })
+    const res = await fetch(`${API}/producto/${id}`, { method: 'GET' })
     if (!res.ok) return undefined
     const data = await res.json()
     return normalizeProducto(data)
   },
   async create(product: Producto): Promise<Producto> {
     const body = { ...product }
-    const res = await fetch(`${BASE}/producto/crear`, {
+    const res = await fetch(`${API}/producto/crear`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(body)
@@ -96,7 +96,7 @@ export const productService = {
   async update(id: number, product: Producto): Promise<Producto> {
     const body = { ...product, id }
     // endpoint indicado: /producto/actualizar
-    const res = await fetch(`${BASE}/producto/actualizar`, {
+    const res = await fetch(`${API}/producto/actualizar`, {
       method: 'PUT',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(body)  
@@ -107,7 +107,7 @@ export const productService = {
   },
   async remove(id: number): Promise<void> {
     // Intento razonable: DELETE /producto/{id}
-    const res = await fetch(`${BASE}/producto/borrar/${id}`, { method: 'DELETE' })
+    const res = await fetch(`${API}/producto/borrar/${id}`, { method: 'DELETE' })
     if (!res.ok) throw new Error(`Error delete: ${res.status} ${res.statusText}`)
     return
   }

@@ -1009,10 +1009,56 @@ p, label, input, select, button {
 }
 
 .chart-card h3 {
-  margin: 0 0 12px 0;
+  margin: 0;
   font-size: 16px;
   font-weight: 700;
   color: var(--text-primary);
+}
+
+.chart-card-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 16px;
+  margin-bottom: 16px;
+}
+
+.chart-controls {
+  display: flex;
+  gap: 10px;
+  align-items: center;
+}
+
+.control-button {
+  border: 1px solid var(--border-color);
+  background: var(--bg-secondary);
+  color: var(--text-primary);
+  border-radius: 8px;
+  padding: 8px 12px;
+  cursor: pointer;
+  transition: background 0.2s ease, color 0.2s ease;
+}
+
+.control-button:hover {
+  background: var(--bg-tertiary);
+}
+
+.chart-scrollable {
+  overflow-x: auto;
+  padding-bottom: 10px;
+}
+
+.chart-scrollable::-webkit-scrollbar {
+  height: 10px;
+}
+
+.chart-scrollable::-webkit-scrollbar-thumb {
+  background: rgba(30, 77, 140, 0.35);
+  border-radius: 999px;
+}
+
+.chart-scrollable::-webkit-scrollbar-track {
+  background: transparent;
 }
 
 .accordion-toggle {

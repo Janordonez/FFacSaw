@@ -15,6 +15,10 @@ export interface ProductoInfoDTO {
   eoq: number;
   stock: number;
   rop: number;
+  valorInventario?: number;
+  porcentajeInventario?: number;
+  acumulado?: number;
+  tipo?: string;
 }
 
 export interface Categoria {
@@ -42,11 +46,11 @@ export interface DashBoardData {
   productosInfoDTO: ProductoInfoDTO[];
 }
 
-const BASE = "http://localhost:8081";
+const API = import.meta.env.VITE_API_URL;
 
 export const dashboardService = {
   async get(): Promise<DashBoardData | null> {
-    const res = await fetch(`${BASE}/dashboard/all`, { method: "GET" });
+    const res = await fetch(`${API}/dashboard/all`, { method: "GET" });
 
     if (!res.ok) return null;
 

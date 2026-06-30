@@ -1,4 +1,4 @@
-const BASE = 'http://localhost:8081'
+const API = import.meta.env.VITE_API_URL
 
 export interface DetalleMovimiento {
   producto?: { id?: number; nombre?: string; nombreProducto?: string }
@@ -103,7 +103,7 @@ const normalizeMovimientoInventario = (m: any): MovimientoInventarioDTO => ({
 
 const movimientoService = {
   async list(): Promise<MovimientoInventarioDTO[]> {
-    const res = await fetch(`${BASE}/movimiento/all`, { method: 'GET' })
+    const res = await fetch(`${API}/movimiento/all`, { method: 'GET' })
     if (!res.ok) throw new Error(`Error list movimientos: ${res.status}`)
     const data = await res.json()
     if (!Array.isArray(data)) return []
@@ -111,7 +111,7 @@ const movimientoService = {
   },
 
   async listByBodega(id: number): Promise<MovimientoInventarioDTO[]> {
-    const res = await fetch(`${BASE}/movimiento/filtrar/bodega/${id}`, { method: 'GET' })
+    const res = await fetch(`${API}/movimiento/filtrar/bodega/${id}`, { method: 'GET' })
     if (!res.ok) throw new Error(`Error filtrar movimientos: ${res.status}`)
     const data = await res.json()
     if (!Array.isArray(data)) return []
@@ -119,7 +119,7 @@ const movimientoService = {
   },
 
   async getById(id: number): Promise<MovimientoInventarioDTO | null> {
-    const res = await fetch(`${BASE}/movimiento/filtrar/${id}`, { method: 'GET' })
+    const res = await fetch(`${API}/movimiento/filtrar/${id}`, { method: 'GET' })
     if (!res.ok) return null
     const data = await res.json()
     if (!data || typeof data !== 'object') return null
@@ -127,7 +127,7 @@ const movimientoService = {
   },
 
   async create(mov: MovimientoDTO): Promise<MovimientoDTO> {
-    const res = await fetch(`${BASE}/movimiento/crear`, {
+    const res = await fetch(`${API}/movimiento/crear`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(mov)

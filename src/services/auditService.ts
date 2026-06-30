@@ -48,15 +48,16 @@ function toAuditEntry(raw: any): AuditEntry {
   // if server returns a top-level field that looks like "ADD" etc we observe above
   return entry
 }
+const API = import.meta.env.VITE_API_URL
+
 // Audit service: fetch audits from server endpoints.
 // - To get all audits for an entity:  `/{entity}/auditoria`
 // - To get audits for a specific id: `/{entity}/auditoriaid/{id}`
 export async function getAudits(entity: string, id?: number): Promise<AuditEntry[]> {
   const safeEntity = encodeURIComponent(String(entity))
-  const BASE = 'http://localhost:8081'
   const url = id != null
-    ? `${BASE}/${safeEntity}/auditoriaid/${encodeURIComponent(String(id))}`
-    : `${BASE}/${safeEntity}/auditoria`
+    ? `${API}/${safeEntity}/auditoriaid/${encodeURIComponent(String(id))}`
+    : `${API}/${safeEntity}/auditoria`
 
 
   try {

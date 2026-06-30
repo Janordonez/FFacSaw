@@ -43,11 +43,6 @@ export default function MovimientoForm({ onCancel, onSaved }: { onCancel: () => 
     return productos.filter(p => p.id != null && ids.has(p.id))
   }, [existencias, productos])
 
-  const findExistenciaForProduct = (productoId?: number) => {
-    if (productoId == null) return undefined
-    return existencias.find(e => getExistenciaProductoId(e) === productoId)
-  }
-
   const buildDetallesPayload = () => {
     return detalles.map(d => ({
       existencia: {

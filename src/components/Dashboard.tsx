@@ -5,10 +5,15 @@ import {
   Cell,
   BarChart,
   Bar,
+  LineChart,
+  Line,
   XAxis,
   YAxis,
   Tooltip,
+  CartesianGrid,
   ResponsiveContainer,
+  ReferenceLine,
+  Legend,
 } from "recharts";
 
 import dashboardService from "../services/dashboardService";
@@ -28,6 +33,34 @@ export default function Dashboard() {
   const [data, setData] = useState<DashBoardData | null>(null);
   const [loading, setLoading] = useState(true);
   const [isStockCriticalOpen, setIsStockCriticalOpen] = useState(true);
+  const [isParetoExpanded, setIsParetoExpanded] = useState(false);
+
+  const formatInventoryAxis = (value: number) => {
+    if (Math.abs(value) >= 1000000) {
+      return `$${(value / 1000000).toFixed(1)}M`;
+    }
+    if (Math.abs(value) >= 1000) {
+      return `$${Math.round(value / 1000)}K`;
+    }
+    return `$${Number(value).toLocaleString()}`;
+  };
+
+  const getClassBoundaryInfo = () => {
+    if (!data) return { firstBIndex: undefined, firstCIndex: undefined };
+    const firstBIndex = data.productosInfoDTO.findIndex((item) => item.tipo === "B");
+    const firstCIndex = data.productosInfoDTO.findIndex((item) => item.tipo === "C");
+    return { firstBIndex, firstCIndex };
+  };
+
+  const { firstBIndex, firstCIndex } = getClassBoundaryInfo();
+
+  const maxInventario = data?.productosInfoDTO?.reduce(
+    (max, item) => Math.max(max, item.valorInventario ?? 0),
+    0,
+  ) ?? 0;
+
+  const paretoChartWidth = Math.max((data?.productosInfoDTO?.length ?? 0) * 110, 1100);
+  const inventoryDomainMax = Math.max(Math.ceil((maxInventario * 1.5) / 100000) * 100000, 500000);
 
   useEffect(() => {
     dashboardService.get().then((res) => {
@@ -97,6 +130,85 @@ export default function Dashboard() {
           </ResponsiveContainer>
         </div>
       </div>
+
+      <div className="chart-card full">
+        <div className="chart-card-header">
+          <h3>Diagrama de Pareto</h3>
+          <div className="chart-controls">
+            <button
+              type="button"
+              className="control-button"
+              onClick={() => setIsParetoExpanded((prev) => !prev)}
+            >
+              {isParetoExpanded ? "Ver pequeño" : "Ver grande"}
+            </button>
+          </div>
+        </div>
+        <div className="chart-scrollable">
+          <div style={{ minWidth: paretoChartWidth, height: isParetoExpanded ? 560 : 420 }}>
+            <ResponsiveContainer width="100%" height="100%">
+              <LineChart
+                data={data.productosInfoDTO}
+                margin={{ top: 20, right: 40, left: 0, bottom: 10 }}
+              >
+            <CartesianGrid strokeDasharray="3 3" opacity={0.4} />
+            <XAxis dataKey="nombre" tick={{ fontSize: 12 }} interval={0} angle={-30} textAnchor="end" height={70} />
+            <YAxis
+              yAxisId="left"
+              tickFormatter={(value) => formatInventoryAxis(Number(value))}
+              width={90}
+              domain={[0, inventoryDomainMax]}
+            />
+            <YAxis
+              yAxisId="right"
+              orientation="right"
+              domain={[0, 100]}
+              tickFormatter={(value) => `${value}%`}
+            />
+            <Tooltip
+              formatter={(value: any, name: any) => {
+                const numericValue = typeof value === 'number' ? value : Number(value);
+                if (name === "acumulado") return [`${numericValue.toFixed(1)}%`, "Acumulado"];
+                if (name === "valorInventario") return [`$${Number(numericValue).toLocaleString()}`, "Valor inventario"];
+                return [value, name];
+              }}
+            />
+            <Legend verticalAlign="top" height={36} />
+            {firstBIndex !== undefined && firstBIndex >= 0 && (
+              <ReferenceLine
+                x={firstBIndex}
+                stroke="#2563eb"
+                strokeWidth={2}
+                strokeDasharray="6 4"
+                label={{ value: "Clase B", position: "insideTop", fill: "#2563eb", fontSize: 12 }}
+              />
+            )}
+            {firstCIndex !== undefined && firstCIndex >= 0 && (
+              <ReferenceLine
+                x={firstCIndex}
+                stroke="#dc2626"
+                strokeWidth={2}
+                strokeDasharray="6 4"
+                label={{ value: "Clase C", position: "insideTop", fill: "#dc2626", fontSize: 12 }}
+              />
+            )}
+          
+            <Bar yAxisId="left" dataKey="valorInventario" fill="#1E4D8C" radius={[6, 6, 0, 0]} barSize={28} />
+            <Line
+              yAxisId="right"
+              type="monotone"
+              dataKey="acumulado"
+              name="Acumulado (%)"
+              stroke="#f59e0b"
+              strokeWidth={4}
+              dot={{ r: 5, fill: "#f59e0b" }}
+              activeDot={{ r: 6, fill: "#f59e0b" }}
+            />
+          </LineChart>
+        </ResponsiveContainer>
+      </div>
+    </div>
+  </div>
 
       <div className="chart-card full">
         <button
@@ -189,3 +301,4 @@ export default function Dashboard() {
     </div>
   );
 }
+

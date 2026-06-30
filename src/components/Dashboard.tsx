@@ -138,7 +138,7 @@ export default function Dashboard() {
             <BarChart
               data={clasificacionData}
               margin={{ top: 20, right: 20, left: 0, bottom: 5 }}
-              barCategoryGap="30%"
+              barCategoryGap="20%"
             >
               <CartesianGrid strokeDasharray="3 3" opacity={0.15} />
               <XAxis
@@ -148,7 +148,7 @@ export default function Dashboard() {
               />
               <YAxis domain={[0, Math.max(clasificacionDomainMax, maxClasificacionCantidad)]} allowDecimals={false} />
               <Tooltip formatter={(value) => [Number(value), 'Cantidad']} />
-              <Bar dataKey="cantidad" fill="#1E4D8C" radius={[6, 6, 0, 0]} barSize={60} label={{ position: 'top' }} />
+              <Bar dataKey="cantidad" fill="#1E4D8C" radius={[6, 6, 0, 0]} barSize={40} label={{ position: 'top' }} />
             </BarChart>
           </ResponsiveContainer>
         </div>

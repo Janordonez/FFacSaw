@@ -71,7 +71,10 @@ export default function Dashboard() {
   const inventoryDomainMax = Math.max(Math.ceil((maxInventario * 1.5) / 100000) * 100000, 500000);
   const clasificacionData = (data?.clasificacionYPorcentaje ?? [])
     .map((item) => ({ ...item, cantidad: Number(item.cantidad) || 0 }))
-    .sort((a, b) => (a.nombre ?? '').localeCompare(b.nombre ?? ''));
+    .sort((a, b) => {
+      const order = { A: 0, B: 1, C: 2 } as Record<string, number>;
+      return (order[a.nombre ?? ''] ?? 99) - (order[b.nombre ?? ''] ?? 99);
+    });
 
   const maxClasificacionCantidad = Math.max(
     0,

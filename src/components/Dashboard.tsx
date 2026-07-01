@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import {
   PieChart,
   Pie,
@@ -81,6 +81,48 @@ export default function Dashboard() {
     ...(clasificacionData.map((item) => item.cantidad) ?? []),
   );
   const clasificacionDomainMax = Math.max(Math.ceil(maxClasificacionCantidad * 1.1), 20);
+
+  const [recommendedSortKey, setRecommendedSortKey] = useState<keyof typeof defaultSortMap>("valorInventario");
+  const [recommendedSortDirection, setRecommendedSortDirection] = useState<"asc" | "desc">("desc");
+
+  const sortIcon = (key: keyof typeof defaultSortMap) =>
+    recommendedSortKey === key ? (recommendedSortDirection === "desc" ? "↓" : "↑") : "";
+
+  const recommendedProducts = useMemo(() => {
+    const sorted = [...(data?.productosInfoDTO ?? [])];
+    sorted.sort((a, b) => {
+      const valueA = a[recommendedSortKey] ?? 0;
+      const valueB = b[recommendedSortKey] ?? 0;
+      if (typeof valueA === "string" && typeof valueB === "string") {
+        return recommendedSortDirection === "asc"
+          ? valueA.localeCompare(valueB)
+          : valueB.localeCompare(valueA);
+      }
+      return recommendedSortDirection === "asc"
+        ? Number(valueA) - Number(valueB)
+        : Number(valueB) - Number(valueA);
+    });
+    return sorted;
+  }, [data?.productosInfoDTO, recommendedSortDirection, recommendedSortKey]);
+
+  const defaultSortMap = {
+    nombre: "nombre",
+    eoq: "eoq",
+    stock: "stock",
+    rop: "rop",
+    porcentajeInventario: "porcentajeInventario",
+    valorInventario: "valorInventario",
+    acumulado: "acumulado",
+  } as const;
+
+  const handleRecommendedSort = (key: keyof typeof defaultSortMap) => {
+    if (recommendedSortKey === key) {
+      setRecommendedSortDirection((prev) => (prev === "asc" ? "desc" : "asc"));
+    } else {
+      setRecommendedSortKey(key);
+      setRecommendedSortDirection("desc");
+    }
+  };
 
   useEffect(() => {
     dashboardService.get().then((res) => {
@@ -304,19 +346,41 @@ export default function Dashboard() {
           <table className="inventory-table">
             <thead>
               <tr>
-                <th>Producto</th>
-                <th>EOQ</th>
-                <th>Stock</th>
-                <th>ROP</th>
+                <th onClick={() => handleRecommendedSort("nombre")} className="sortable">
+                  Producto {sortIcon("nombre")}
+                </th>
+                <th onClick={() => handleRecommendedSort("eoq")} className="sortable">
+                  EOQ {sortIcon("eoq")}
+                </th>
+                <th onClick={() => handleRecommendedSort("stock")} className="sortable">
+                  Stock {sortIcon("stock")}
+                </th>
+                <th onClick={() => handleRecommendedSort("rop")} className="sortable">
+                  ROP {sortIcon("rop")}
+                </th>
+                <th onClick={() => handleRecommendedSort("porcentajeInventario")} className="sortable">
+                  % Inventario {sortIcon("porcentajeInventario")}
+                </th>
+                <th onClick={() => handleRecommendedSort("valorInventario")} className="sortable">
+                  Valor inventario {sortIcon("valorInventario")}
+                </th>
+                <th onClick={() => handleRecommendedSort("acumulado")} className="sortable">
+                  Acumulado {sortIcon("acumulado")}
+                </th>
+                <th>Tipo</th>
               </tr>
             </thead>
             <tbody>
-              {(data.productosInfoDTO ?? []).map((producto, index) => (
+              {recommendedProducts.map((producto, index) => (
                 <tr key={`${producto.nombre}-${index}`}>
                   <td>{producto.nombre}</td>
-                  <td>{producto.eoq.toFixed(2)}</td>
-                  <td>{producto.stock}</td>
-                  <td>{producto.rop.toFixed(2)}</td>
+                  <td>{producto.eoq?.toFixed(2) ?? "0.00"}</td>
+                  <td>{producto.stock ?? 0}</td>
+                  <td>{producto.rop?.toFixed(2) ?? "0.00"}</td>
+                  <td>{producto.porcentajeInventario?.toFixed(2) ?? "0.00"}%</td>
+                  <td>{producto.valorInventario?.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 }) ?? "0.00"}</td>
+                  <td>{producto.acumulado?.toFixed(2) ?? "0.00"}%</td>
+                  <td>{producto.tipo ?? "-"}</td>
                 </tr>
               ))}
             </tbody>

@@ -1,3 +1,5 @@
+import { API } from './apiConfig'
+
 export interface ExistenciaDTO {
   productoId?: number
   bodegaId?: number
@@ -6,8 +8,6 @@ export interface ExistenciaDTO {
   bodega?: string
   stock: number
 }
-
-const API = import.meta.env.VITE_API_URL
 
 export const existenciaService = {
   async listByBodega(bodegaId: number): Promise<ExistenciaDTO[]> {

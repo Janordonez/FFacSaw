@@ -13,7 +13,8 @@ export default function MovimientoForm({ onCancel, onSaved }: { onCancel: () => 
   const [bodegas, setBodegas] = useState<BodegaDTO[]>([])
   const [existencias, setExistencias] = useState<ExistenciaDTO[]>([])
   const [selectedBodegaId, setSelectedBodegaId] = useState<number | null>(null)
-  const [tipo, setTipo] = useState<'ENTRADA'|'SALIDA'>('ENTRADA')
+  const [selectedDestinoBodegaId, setSelectedDestinoBodegaId] = useState<number | null>(null)
+  const [tipo, setTipo] = useState<'ENTRADA'|'SALIDA'|'TRANSFERENCIA'>('ENTRADA')
   const [detalles, setDetalles] = useState<DetalleForm[]>([{ cantidad: 1 }])
   const [loading, setLoading] = useState(false)
 
@@ -56,6 +57,8 @@ export default function MovimientoForm({ onCancel, onSaved }: { onCancel: () => 
     }))
   }
 
+  const isTransferencia = tipo === 'TRANSFERENCIA'
+
   function updateDetalle(idx: number, patch: Partial<DetalleForm>) {
     setDetalles(prev => prev.map((d, i) => i === idx ? {
       ...d,
@@ -72,26 +75,13 @@ export default function MovimientoForm({ onCancel, onSaved }: { onCancel: () => 
       alert('Seleccione una bodega antes de guardar el movimiento.')
       return
     }
-    setLoading(true)
-    try {
-      const payload = {
-        tipo,
-        bodega: { id: selectedBodegaId },
-        detalles: buildDetallesPayload()
-      }
-      await movimientoService.create(payload as any)
-      onSaved()
-    } catch (err) {
-      alert('Error al crear movimiento: ' + (err as Error).message)
-    } finally {
-      setLoading(false)
+    if (isTransferencia && (!selectedDestinoBodegaId || selectedDestinoBodegaId === selectedBodegaId)) {
+      alert('Seleccione una bodega destino válida para la transferencia.')
+      return
     }
-  }
-
-  async function addAndNew() {
-    if (loading) return
-    if (!selectedBodegaId) {
-      alert('Seleccione una bodega antes de guardar el movimiento.')
+    const hasValidDetalles = detalles.some(d => typeof d.productoId === 'number' && d.cantidad > 0)
+    if (!hasValidDetalles) {
+      alert('Agregue al menos un producto con cantidad válida.')
       return
     }
     setLoading(true)
@@ -99,13 +89,16 @@ export default function MovimientoForm({ onCancel, onSaved }: { onCancel: () => 
       const payload = {
         tipo,
         bodega: { id: selectedBodegaId },
+        ...(isTransferencia ? { bodegaDestino: { id: selectedDestinoBodegaId } } : {}),
         detalles: buildDetallesPayload()
       }
-      await movimientoService.create(payload as any)
-      setTipo('ENTRADA')
-      setSelectedBodegaId(null)
-      setDetalles([{ cantidad: 1 }])
-      alert('Movimiento agregado. Puedes crear otro.')
+      if (isTransferencia) {
+        const cantidadTotal = detalles.reduce((sum, d) => sum + (d.cantidad > 0 ? d.cantidad : 0), 0)
+        await movimientoService.transfer(payload as any, cantidadTotal)
+      } else {
+        await movimientoService.create(payload as any)
+      }
+      onSaved()
     } catch (err) {
       alert('Error al crear movimiento: ' + (err as Error).message)
     } finally {
@@ -125,6 +118,7 @@ export default function MovimientoForm({ onCancel, onSaved }: { onCancel: () => 
         <select value={tipo} onChange={e => setTipo(e.target.value as any)}>
           <option value="ENTRADA">Entrada</option>
           <option value="SALIDA">Salida</option>
+          <option value="TRANSFERENCIA">Transferencia</option>
         </select>
       </div>
 
@@ -135,6 +129,17 @@ export default function MovimientoForm({ onCancel, onSaved }: { onCancel: () => 
           {bodegas.map(b => <option key={b.id} value={b.id}>{b.nombre}</option>)}
         </select>
       </div>
+
+      {isTransferencia && (
+        <div className="form-group">
+          <label>Bodega destino</label>
+          <select value={selectedDestinoBodegaId ?? ''} onChange={e => setSelectedDestinoBodegaId(e.target.value === '' ? null : parseInt(e.target.value, 10))}>
+            <option value="">-- seleccionar bodega destino --</option>
+            {bodegas.filter(b => b.id !== selectedBodegaId).map(b => <option key={b.id} value={b.id}>{b.nombre}</option>)}
+          </select>
+          <p className="text-muted">Selecciona la bodega a la que se transferirá el stock.</p>
+        </div>
+      )}
 
       <div className="form-group">
         <label>Detalles</label>
@@ -160,8 +165,7 @@ export default function MovimientoForm({ onCancel, onSaved }: { onCancel: () => 
 
       <div className="form-actions">
         <button type="button" className="btn btn-secondary" onClick={onCancel}>Cancelar</button>
-        <button type="button" className="btn" onClick={addAndNew} disabled={loading}>Agregar y nuevo</button>
-        <button type="submit" className="btn btn-primary" disabled={loading}>{loading ? 'Guardando...' : 'Guardar movimiento'}</button>
+        <button type="submit" className="btn btn-primary" disabled={loading}>{loading ? 'Guardando...' : 'Guardar'}</button>
       </div>
     </form>
   )

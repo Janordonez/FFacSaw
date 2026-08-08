@@ -1,3 +1,5 @@
+import { API } from './apiConfig'
+
 export interface ProveedorDTO {
   id?: number
   nombreComercial: string
@@ -10,8 +12,6 @@ export interface ProveedorDTO {
   fechaEntregas?: string
   costoPorPedido?: number | string
 }
-
-const API = import.meta.env.VITE_API_URL
 
 export const proveedorService = {
   async list(): Promise<ProveedorDTO[]> {

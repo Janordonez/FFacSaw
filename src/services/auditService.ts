@@ -48,7 +48,8 @@ function toAuditEntry(raw: any): AuditEntry {
   // if server returns a top-level field that looks like "ADD" etc we observe above
   return entry
 }
-const API = import.meta.env.VITE_API_URL
+
+import { API } from './apiConfig'
 
 // Audit service: fetch audits from server endpoints.
 // - To get all audits for an entity:  `/{entity}/auditoria`

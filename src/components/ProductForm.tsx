@@ -13,7 +13,7 @@ type Props = {
 }
 
 export default function ProductForm({ producto, onCancel, onSaved }: Props) {
-  const [form, setForm] = useState<Producto>({ nombre: '', descripcion: '', impuesto: false, estado: 'Activo' })
+  const [form, setForm] = useState<Producto>({ nombre: '', descripcion: '', impuesto: false, estado: 'ACTIVO' })
   const [categorias, setCategorias] = useState<CategoriaDTO[]>([])
   const [proveedores, setProveedores] = useState<ProveedorDTO[]>([])
   const [loading, setLoading] = useState(false)
@@ -26,7 +26,7 @@ export default function ProductForm({ producto, onCancel, onSaved }: Props) {
         nombre: '', 
         descripcion: '', 
         impuesto: false,
-        estado: 'Activo',
+        estado: 'ACTIVO',
         cantVentAnio: undefined,
         ventasPorAño: undefined
       })
@@ -164,7 +164,7 @@ export default function ProductForm({ producto, onCancel, onSaved }: Props) {
         </div>
       </div>
 
-      <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '16px' }}>
+      <div style={{ display: 'grid', gridTemplateColumns: '1fr', gap: '16px' }}>
         <div className="form-group">
           <label>Costo mantenimiento</label>
           <input 
@@ -175,19 +175,7 @@ export default function ProductForm({ producto, onCancel, onSaved }: Props) {
             placeholder="0.00"
           />
         </div>
-
-        <div className="form-group">
-          <label>Clasificación</label>
-          <select  value={form.clasificacion}
-          onChange={(e) => onChange('clasificacion', e.target.value)}
-          className={form.clasificacion ? 'selected' : ''}>
-            <option value="A">A</option>
-            <option value="B">B</option>
-            <option value="C">C</option>
-          </select>
-        </div>
       </div>
-      
 
       <div className="form-group-checkbox">
         <input 

@@ -18,10 +18,6 @@ export default function Existencias() {
   const [addProductOpen, setAddProductOpen] = useState(false)
   const [selectedProductId, setSelectedProductId] = useState<number | ''>('')
   const [newStock, setNewStock] = useState('0')
-  const [transferOpen, setTransferOpen] = useState(false)
-  const [transferProduct, setTransferProduct] = useState<any>(null)
-  const [transferDestinoBodegaId, setTransferDestinoBodegaId] = useState<number | ''>('')
-  const [transferCantidad, setTransferCantidad] = useState('0')
 
   useEffect(() => { bodegaService.list().then(setBodegas).catch(() => setBodegas([])) }, [])
   useEffect(() => { productService.list().then(setProductosAll).catch(() => setProductosAll([])) }, [])
@@ -129,15 +125,6 @@ export default function Existencias() {
                           <td>{stock}</td>
                           <td>
                             <div className="table-actions">
-                              <button className="btn btn-secondary btn-sm" onClick={() => {
-                                setTransferProduct(p)
-                                setTransferDestinoBodegaId('')
-                                setTransferCantidad('0')
-                                setTransferOpen(true)
-                              }} title="Transferir este producto a otra bodega">
-                                <i className="fas fa-arrow-right"></i>
-                                Transferir
-                              </button>
                               <button className="btn btn-secondary btn-sm" onClick={async () => {
                                 const raw = prompt('Ingrese nuevo stock para este producto:', String(stock === '-' ? '0' : stock))
                                 if (raw === null) return
@@ -234,92 +221,6 @@ export default function Existencias() {
                           alert((err as Error).message)
                         }
                       }}>Agregar</button>
-                    </div>
-                  </div>
-                </div>
-              )}
-            </div>
-
-            <div className={`modal-overlay${transferOpen ? ' visible' : ''}`}>
-              {transferOpen && transferProduct && (
-                <div className="modal-panel">
-                  <div className="modal-header">
-                    <div>
-                      <h3 className="modal-title"><i className="fas fa-exchange-alt"></i> Transferir producto</h3>
-                      <p className="text-muted">Mueve stock de este producto a otra bodega.</p>
-                    </div>
-                    <button className="modal-close" onClick={() => setTransferOpen(false)} aria-label="Cerrar">✕</button>
-                  </div>
-                  <div className="modal-body">
-                    <div className="transfer-info">
-                      <p><strong>Producto:</strong> {transferProduct.producto?.nombre ?? transferProduct.nombre}</p>
-                      <p><strong>Bodega origen:</strong> {selected?.nombre}</p>
-                      <p><strong>Stock disponible:</strong> <span className="highlight">{transferProduct.stock ?? 0}</span> unidades</p>
-                    </div>
-                    <hr style={{ margin: '16px 0', border: 'none', borderTop: '1px solid var(--border-color)' }} />
-                    <div className="form-group">
-                      <label className="form-group-required">Bodega destino</label>
-                      <select
-                        className="select-input"
-                        value={transferDestinoBodegaId}
-                        onChange={e => setTransferDestinoBodegaId(parseInt(e.target.value || '0', 10) || '')}
-                      >
-                        <option value="">Seleccione una bodega</option>
-                        {bodegas.filter(b => b.id !== selected!.id).map(b => (
-                          <option key={b.id} value={b.id}>{b.nombre} ({b.ubicacion})</option>
-                        ))}
-                      </select>
-                    </div>
-                    <div className="form-group">
-                      <label className="form-group-required">Cantidad a transferir</label>
-                      <input
-                        className="filter-input"
-                        type="number"
-                        min="1"
-                        max={transferProduct.stock ?? 0}
-                        value={transferCantidad}
-                        onChange={e => setTransferCantidad(e.target.value)}
-                        placeholder="Ingrese cantidad"
-                      />
-                      <small className="text-muted">Máximo: {transferProduct.stock ?? 0} unidades</small>
-                    </div>
-                    <div className="form-actions">
-                      <button className="btn btn-secondary" onClick={() => setTransferOpen(false)}>Cancelar</button>
-                      <button className="btn btn-primary" onClick={async () => {
-                        if (!transferDestinoBodegaId) {
-                          alert('Seleccione una bodega destino.');
-                          return
-                        }
-                        const cantidad = parseInt(transferCantidad.trim() || '0', 10)
-                        if (Number.isNaN(cantidad) || cantidad <= 0) {
-                          alert('Ingrese una cantidad válida.');
-                          return
-                        }
-                        const stockDisponible = Number(transferProduct.stock ?? 0)
-                        if (cantidad > stockDisponible) {
-                          alert(`No hay suficiente stock. Disponible: ${stockDisponible}`);
-                          return
-                        }
-                        try {
-                          const productoId = Number(transferProduct.id ?? transferProduct.productoId ?? transferProduct.producto?.id)
-                          const origenStock = Number(transferProduct.stock ?? 0)
-                          const existenciasDestino = await existenciaService.listByBodega(transferDestinoBodegaId as number)
-                          const foundDestino = existenciasDestino.find((ex: any) => {
-                            return (ex.existenciaID && Number(ex.existenciaID.productoId) === productoId) || (ex.producto && Number(ex.producto.id) === productoId) || Number(ex.productoId) === productoId
-                          })
-                          const existenciaOrigen = { existenciaID: { productoId, bodegaId: selected!.id! }, stock: origenStock }
-                          const existenciaDestino = foundDestino
-                            ? { existenciaID: { productoId, bodegaId: transferDestinoBodegaId as number }, stock: Number(foundDestino.stock ?? 0) }
-                            : { existenciaID: { productoId, bodegaId: transferDestinoBodegaId as number }, stock: 0 }
-                          await existenciaService.transfer(existenciaOrigen, existenciaDestino, cantidad)
-                          const refreshed = await existenciaService.productsByBodega(selected!.id!)
-                          setProductosEnBodega(refreshed)
-                          setTransferOpen(false)
-                          alert('Transferencia completada exitosamente.')
-                        } catch (err) {
-                          alert('Error: ' + (err as Error).message)
-                        }
-                      }}><i className="fas fa-check"></i> Transferir</button>
                     </div>
                   </div>
                 </div>

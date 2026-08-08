@@ -83,11 +83,9 @@ export default function ProductList({ onEdit, onCreate, refreshSignal }: { onEdi
               <th>ID</th>
               <th>Nombre</th>
               <th>Categoría</th>
-              <th>Clasificación</th>
               <th>Estado</th>
               <th>Precio proveedor</th>
               <th>Precio venta</th>
-              <th>Stock</th>
               <th>Stock mínimo</th>
               <th>Stock seguridad</th>
               <th>Costo mant.</th>
@@ -101,11 +99,9 @@ export default function ProductList({ onEdit, onCreate, refreshSignal }: { onEdi
                 <td>{p.id}</td>
                 <td>{p.nombre}</td>
                 <td>{p.categoria?.nombre}</td>
-                <td>{p.clasificacion ?? '-'}</td>
                 <td>{p.estado ?? 'Activo'}</td>
                 <td>{p.precioProveedor?.toFixed(2)}</td>
                 <td>{p.precioVenta?.toFixed(2)}</td>
-                <td>{p.stock ?? '-'}</td>
                 <td>{p.stockMinimo ?? '-'}</td>
                 <td>{p.stockSeguridad ?? '-'}</td>
                 <td>{p.costoMantenimiento?.toFixed(2)}</td>

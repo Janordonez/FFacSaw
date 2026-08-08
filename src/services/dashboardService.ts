@@ -36,6 +36,8 @@ export interface Clasificacion {
   cantidad: number;
 }
 
+import { API } from './apiConfig'
+
 export interface DashBoardData {
   valorTotal: number;
   totalRepuestos: number;
@@ -45,8 +47,6 @@ export interface DashBoardData {
   clasificacionYPorcentaje: Clasificacion[];
   productosInfoDTO: ProductoInfoDTO[];
 }
-
-const API = import.meta.env.VITE_API_URL;
 
 export const dashboardService = {
   async get(): Promise<DashBoardData | null> {

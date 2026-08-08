@@ -26,7 +26,7 @@ export interface Producto {
   estado?: 'Activo' | 'Inactivo' | string
 }
 
-const API = import.meta.env.VITE_API_URL
+const API = import.meta.env.VITE_API_URL || 'http://localhost:8080'
 
 function normalizeNumber(v: any): number | undefined {
   if (v === null || v === undefined || v === '') return undefined

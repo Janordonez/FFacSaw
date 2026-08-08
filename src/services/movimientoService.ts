@@ -1,4 +1,4 @@
-const API = import.meta.env.VITE_API_URL
+import { API } from './apiConfig'
 
 export interface DetalleMovimiento {
   producto?: { id?: number; nombre?: string; nombreProducto?: string }
@@ -133,6 +133,22 @@ const movimientoService = {
       body: JSON.stringify(mov)
     })
     if (!res.ok) throw new Error(`Error create movimiento: ${res.status}`)
+    const data = await res.json()
+    return {
+      id: data?.id,
+      tipo: data?.tipo,
+      bodega: data?.bodega,
+      detalles: Array.isArray(data?.detalles) ? data.detalles.map(normalizeDetalle) : []
+    }
+  },
+
+  async transfer(mov: MovimientoDTO, cantidad: number): Promise<MovimientoDTO> {
+    const res = await fetch(`${API}/movimiento/transferir/${cantidad}`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(mov)
+    })
+    if (!res.ok) throw new Error(`Error transferir movimiento: ${res.status}`)
     const data = await res.json()
     return {
       id: data?.id,

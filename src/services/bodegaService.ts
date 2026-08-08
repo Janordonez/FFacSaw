@@ -1,6 +1,6 @@
-export interface BodegaDTO { id?: number; nombre: string; ubicacion?: string; descripcion?: string }
+import { API } from './apiConfig'
 
-const API = import.meta.env.VITE_API_URL
+export interface BodegaDTO { id?: number; nombre: string; ubicacion?: string; descripcion?: string }
 
 export const bodegaService = {
   async list(): Promise<BodegaDTO[]> {

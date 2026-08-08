@@ -1,6 +1,6 @@
-export interface CategoriaDTO { id?: number; nombre: string; descripcion?: string }
+import { API } from './apiConfig'
 
-const API = import.meta.env.VITE_API_URL
+export interface CategoriaDTO { id?: number; nombre: string; descripcion?: string }
 
 export const categoryService = {
   async list(): Promise<CategoriaDTO[]> {
